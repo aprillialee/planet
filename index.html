@@ -1,0 +1,141 @@
+<html>
+  <head>
+    <title>Planet</title>
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <script src="build/three.js"></script>
+  <script src="build/dat.gui.min.js"></script>
+  <script src="build/stats.min.js"></script>
+  <script src="build/OrbitControls.js"></script>
+
+  <script>
+    //Global Variables
+    var scene;
+    var camera;
+    var renderer;
+    var control;
+    var stats;
+    var cameraControl;
+
+    //Initialise the scene - call when window is loaded (window.onload)
+    function init() {
+      //Create the scene
+      scene = new THREE.Scene();
+
+      //Create the camera
+      camera = new THREE.PerspectiveCamera(
+        45,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      //create the renderer
+      renderer = new THREE.WebGLRenderer();
+      renderer.setClearColor(0x000000, 1.0);
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.shadowMap.enabled = true;
+
+      //create the sphere
+      var sphereGeometry = new THREE.SphereGeometry(15, 30, 30);
+      var sphereMaterial = createEarthMaterial();
+      var earthMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
+      earthMesh.name = "earth";
+      scene.add(earthMesh);
+
+      //create the clouds - we want it to be slighlty larger than the original sphere
+      var cloudGeometry = new THREE.SphereGeometry(15.25, 60, 60);
+      var cloudMaterial = createCloudMaterial();
+      var cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
+      cloudMesh.name = "clouds";
+      scene.add(cloudMesh);
+
+      // position the camera
+      camera.position.x = 35;
+      camera.position.y = 36;
+      camera.position.z = 33;
+      camera.lookAt(scene.position);
+
+      //add the controls
+      cameraControl = new THREE.OrbitControls(camera);
+
+      // set up the control object for the control gui
+      control = new (function() {
+        this.rotationSpeed = 0.005;
+        this.opacity = 0.6;
+      })();
+
+      //add the extras
+      addControlGui(control);
+      addStatsObject();
+
+      //add the output of the renderer to the html element
+      document.body.appendChild(renderer.domElement);
+
+      render();
+    }
+
+    function createEarthMaterial() {
+      var earthTexture = new THREE.TextureLoader().load("earthmap.jpg");
+
+      var earthMaterial = new THREE.MeshBasicMaterial({map: earthTexture});
+
+      return earthMaterial;
+    }
+
+    function createCloudMaterial() {
+      var cloudTexture = new THREE.TextureLoader().load("clouds.png");
+
+      var cloudMaterial = new THREE.MeshBasicMaterial({map: cloudTexture});
+
+      cloudMaterial.transparent = true;
+
+      return cloudMaterial;
+    }
+
+    function addControlGui(controlObject) {
+      var gui = new dat.GUI();
+      gui.add(controlObject, "rotationSpeed", -0.01, 0.01);
+    }
+
+    function addStatsObject() {
+      stats = new Stats();
+      stats.setMode(0);
+
+      stats.domElement.style.position = "absolute";
+      stats.domElement.style.left = "0px";
+      stats.domElement.style.top = "0px";
+
+      document.body.appendChild(stats.domElement);
+    }
+
+    function render() {
+      // update stats
+      stats.update();
+
+      // update the camera
+      cameraControl.update();
+
+      scene.getObjectByName("earth").rotation.y += control.rotationSpeed;
+
+      // and render the scene
+      renderer.render(scene, camera);
+
+      // render using requestAnimationFrame
+      requestAnimationFrame(render);
+    }
+
+    function handleResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // calls the init function when the window is done loading.
+    window.onload = init;
+    // calls the handleResize function when the window is resized
+    window.addEventListener("resize", handleResize, false);
+  </script>
+  <body></body>
+</html>
