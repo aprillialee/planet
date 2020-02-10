@@ -51,6 +51,18 @@
       cloudMesh.name = "clouds";
       scene.add(cloudMesh);
 
+      //Adding directional lighting - similar to the sun
+      var directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+      directionalLight.position.set(100, 10, -50);
+      directionalLight.name = "directional";
+      scene.add(directionalLight);
+
+      //Adding ambient light
+
+      var ambientLight = new THREE.AmbientLight(0x111111);
+      ambientLight.name = "ambient";
+      scene.add(ambientLight);
+
       // position the camera
       camera.position.x = 35;
       camera.position.y = 36;
@@ -64,6 +76,8 @@
       control = new (function() {
         this.rotationSpeed = 0.005;
         this.opacity = 0.6;
+        this.ambientLightColor = ambientLight.color.getHex();
+        this.directionalLightColor = directionalLight.color.getHex();
       })();
 
       //add the extras
@@ -79,7 +93,7 @@
     function createEarthMaterial() {
       var earthTexture = new THREE.TextureLoader().load("earthmap.jpg");
 
-      var earthMaterial = new THREE.MeshBasicMaterial({map: earthTexture});
+      var earthMaterial = new THREE.MeshPhongMaterial({map: earthTexture});
 
       return earthMaterial;
     }
@@ -87,7 +101,7 @@
     function createCloudMaterial() {
       var cloudTexture = new THREE.TextureLoader().load("clouds.png");
 
-      var cloudMaterial = new THREE.MeshBasicMaterial({map: cloudTexture});
+      var cloudMaterial = new THREE.MeshPhongMaterial({map: cloudTexture});
 
       cloudMaterial.transparent = true;
 
@@ -97,6 +111,8 @@
     function addControlGui(controlObject) {
       var gui = new dat.GUI();
       gui.add(controlObject, "rotationSpeed", -0.01, 0.01);
+      gui.addColor(controlObject, "ambientLightColor");
+      gui.addColor(controlObject, "directionalLightColor");
     }
 
     function addStatsObject() {
@@ -118,6 +134,14 @@
       cameraControl.update();
 
       scene.getObjectByName("earth").rotation.y += control.rotationSpeed;
+      scene.getObjectByName("clouds").rotation.y += control.rotationSpeed * 1.1;
+
+      scene.getObjectByName("ambient").Color = new THREE.Color(
+        control.ambientLightColor
+      );
+      scene.getObjectByName("directional").Color = new THREE.Color(
+        control.directionalLightColor
+      );
 
       // and render the scene
       renderer.render(scene, camera);
