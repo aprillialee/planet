@@ -52,8 +52,8 @@
       scene.add(cloudMesh);
 
       //Adding directional lighting - similar to the sun
-      var directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
-      directionalLight.position.set(100, 10, -50);
+      var directionalLight = new THREE.DirectionalLight(0xffffff, 1.3);
+      directionalLight.position.set(100, 3, 5);
       directionalLight.name = "directional";
       scene.add(directionalLight);
 
@@ -70,6 +70,7 @@
       camera.lookAt(scene.position);
 
       //add the controls
+
       cameraControl = new THREE.OrbitControls(camera);
 
       // set up the control object for the control gui
@@ -134,7 +135,8 @@
       cameraControl.update();
 
       scene.getObjectByName("earth").rotation.y += control.rotationSpeed;
-      scene.getObjectByName("clouds").rotation.y += control.rotationSpeed * 1.1;
+
+      scene.getObjectByName("clouds").rotation.y += control.rotationSpeed * 1.5;
 
       scene.getObjectByName("ambient").Color = new THREE.Color(
         control.ambientLightColor
