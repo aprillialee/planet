@@ -13,10 +13,10 @@
   <script>
     //Global Variables
     var scene;
-    var camera;
     var renderer;
     var control;
     var stats;
+    var camera;
     var cameraControl;
 
     //Initialise the scene - call when window is loaded (window.onload)
@@ -24,13 +24,14 @@
       //Create the scene
       scene = new THREE.Scene();
 
-      //Create the camera
+      //Create the perspective camera
       camera = new THREE.PerspectiveCamera(
         45,
         window.innerWidth / window.innerHeight,
         0.1,
         1000
       );
+
       //create the renderer
       renderer = new THREE.WebGLRenderer();
       renderer.setClearColor(0x000000, 1.0);
@@ -80,6 +81,11 @@
         this.ambientLightColor = ambientLight.color.getHex();
         this.directionalLightColor = directionalLight.color.getHex();
       })();
+
+      const loader = new THREE.TextureLoader();
+      loader.load("bg1.jpg", function(texture) {
+        scene.background = texture;
+      });
 
       //add the extras
       addControlGui(control);
