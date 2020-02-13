@@ -45,12 +45,34 @@
       earthMesh.name = "earth";
       scene.add(earthMesh);
 
+      //create the moon
+      var moonGeometry = new THREE.SphereGeometry(3, 15, 15);
+      var moonMaterial = new THREE.MeshBasicMaterial({
+        map: new THREE.TextureLoader().load("moon.jpg"),
+        shininess: 0
+      });
+      var moonMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+      moonMesh.name = "moon";
+      moonMesh.position.set(-25, 10, 0);
+      scene.add(moonMesh);
+
       //create the clouds - we want it to be slighlty larger than the original sphere
       var cloudGeometry = new THREE.SphereGeometry(15.25, 60, 60);
       var cloudMaterial = createCloudMaterial();
       var cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
       cloudMesh.name = "clouds";
       scene.add(cloudMesh);
+
+      /*Create Starfield background
+      var starGeometry = new THREE.SphereGeometry(100, 50, 50);
+      var starMaterial = new THREE.MeshPhongMaterial({
+        map: new THREE.TextureLoader().load("bg1.jpg"),
+        side: THREE.DoubleSide,
+        shininess: 0
+      });
+      var starField = new THREE.Mesh(starGeometry, starMaterial);
+      scene.add(starField);
+*/
 
       //Adding directional lighting - similar to the sun
       var directionalLight = new THREE.DirectionalLight(0xffffff, 1.3);
@@ -117,7 +139,7 @@
 
     function addControlGui(controlObject) {
       var gui = new dat.GUI();
-      gui.add(controlObject, "rotationSpeed", -0.01, 0.01);
+      gui.add(controlObject, "rotationSpeed", -0.001, 0.001);
       gui.addColor(controlObject, "ambientLightColor");
       gui.addColor(controlObject, "directionalLightColor");
     }
@@ -140,9 +162,11 @@
       // update the camera
       cameraControl.update();
 
-      scene.getObjectByName("earth").rotation.y += control.rotationSpeed;
+      scene.getObjectByName("earth").rotation.y += 0.0005;
 
-      scene.getObjectByName("clouds").rotation.y += control.rotationSpeed * 1.5;
+      scene.getObjectByName("clouds").rotation.y += 0.0007;
+
+      scene.getObjectByName("moon").rotation.y += 0.0009;
 
       scene.getObjectByName("ambient").Color = new THREE.Color(
         control.ambientLightColor
