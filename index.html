@@ -40,7 +40,9 @@
 
       //create the sphere
       var sphereGeometry = new THREE.SphereGeometry(15, 30, 30);
-      var sphereMaterial = createEarthMaterial();
+      var sphereMaterial = new THREE.MeshPhongMaterial({
+        map: new THREE.TextureLoader().load("earthmap.jpg")
+      });
       var earthMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
       earthMesh.name = "earth";
       scene.add(earthMesh);
@@ -48,8 +50,7 @@
       //create the moon
       var moonGeometry = new THREE.SphereGeometry(3, 15, 15);
       var moonMaterial = new THREE.MeshBasicMaterial({
-        map: new THREE.TextureLoader().load("moon.jpg"),
-        shininess: 0
+        map: new THREE.TextureLoader().load("moon.jpg")
       });
       var moonMesh = new THREE.Mesh(moonGeometry, moonMaterial);
       moonMesh.name = "moon";
@@ -58,21 +59,24 @@
 
       //create the clouds - we want it to be slighlty larger than the original sphere
       var cloudGeometry = new THREE.SphereGeometry(15.25, 60, 60);
-      var cloudMaterial = createCloudMaterial();
+      var cloudMaterial = new THREE.MeshPhongMaterial({
+        map: new THREE.TextureLoader().load("clouds.png")
+      });
+      cloudMaterial.transparent = true;
       var cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
       cloudMesh.name = "clouds";
       scene.add(cloudMesh);
 
       /*Create Starfield background
-      var starGeometry = new THREE.SphereGeometry(100, 50, 50);
-      var starMaterial = new THREE.MeshPhongMaterial({
-        map: new THREE.TextureLoader().load("bg1.jpg"),
-        side: THREE.DoubleSide,
-        shininess: 0
-      });
-      var starField = new THREE.Mesh(starGeometry, starMaterial);
-      scene.add(starField);
-*/
+          var starGeometry = new THREE.SphereGeometry(100, 50, 50);
+          var starMaterial = new THREE.MeshPhongMaterial({
+            map: new THREE.TextureLoader().load("bg1.jpg"),
+            side: THREE.DoubleSide,
+            shininess: 0
+          });
+          var starField = new THREE.Mesh(starGeometry, starMaterial);
+          scene.add(starField);
+    */
 
       //Adding directional lighting - similar to the sun
       var directionalLight = new THREE.DirectionalLight(0xffffff, 1.3);
@@ -119,23 +123,10 @@
       render();
     }
 
-    function createEarthMaterial() {
-      var earthTexture = new THREE.TextureLoader().load("earthmap.jpg");
-
-      var earthMaterial = new THREE.MeshPhongMaterial({map: earthTexture});
-
-      return earthMaterial;
-    }
-
-    function createCloudMaterial() {
-      var cloudTexture = new THREE.TextureLoader().load("clouds.png");
-
-      var cloudMaterial = new THREE.MeshPhongMaterial({map: cloudTexture});
-
-      cloudMaterial.transparent = true;
-
-      return cloudMaterial;
-    }
+    //Set the moon's orbital radius, start angle, and angle increment value
+    var r = 20;
+    var theta = 0;
+    var dTheta = (2 * Math.PI) / 1000;
 
     function addControlGui(controlObject) {
       var gui = new dat.GUI();
@@ -166,7 +157,13 @@
 
       scene.getObjectByName("clouds").rotation.y += 0.0007;
 
-      scene.getObjectByName("moon").rotation.y += 0.0009;
+      scene.getObjectByName("moon").rotation.y += 0.005;
+
+      //Increment theta, and update moon x and y
+      //position based off new theta value
+      theta += dTheta;
+      scene.getObjectByName("moon").position.z = r * Math.cos(theta);
+      scene.getObjectByName("moon").position.x = r * Math.sin(theta);
 
       scene.getObjectByName("ambient").Color = new THREE.Color(
         control.ambientLightColor
